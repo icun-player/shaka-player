@@ -618,9 +618,6 @@ shaka.extern.AdvancedDrmConfiguration;
  *   clearKeys: !Object.<string, string>,
  *   delayLicenseRequestUntilPlayed: boolean,
  *   advanced: Object.<string, shaka.extern.AdvancedDrmConfiguration>,
- *   initDataTransform:
- *       ((function(!Uint8Array, string, ?shaka.extern.DrmInfo):!Uint8Array)|
- *         undefined),
  *   logLicenseExchange: boolean,
  *   updateExpirationTime: number,
  *   preferredKeySystems: !Array.<string>
@@ -644,14 +641,6 @@ shaka.extern.AdvancedDrmConfiguration;
  *   <i>Optional.</i> <br>
  *   A dictionary which maps key system IDs to advanced DRM configuration for
  *   those key systems.
- * @property
- *     {((function(!Uint8Array, string, ?shaka.extern.DrmInfo):!Uint8Array)|
- *        undefined)}
- *   initDataTransform
- *   <i>Optional.</i><br>
- *   If given, this function is called with the init data from the
- *   manifest/media and should return the (possibly transformed) init data to
- *   pass to the browser.
  * @property {boolean} logLicenseExchange
  *   <i>Optional.</i><br>
  *   If set to <code>true</code>, prints logs containing the license exchange.
@@ -747,7 +736,9 @@ shaka.extern.DashManifestConfiguration;
  *   ignoreTextStreamFailures: boolean,
  *   ignoreImageStreamFailures: boolean,
  *   defaultAudioCodec: string,
- *   defaultVideoCodec: string
+ *   defaultVideoCodec: string,
+ *   ignoreManifestProgramDateTime: boolean,
+ *   mediaPlaylistFullMimeType: string
  * }}
  *
  * @property {boolean} ignoreTextStreamFailures
@@ -762,6 +753,20 @@ shaka.extern.DashManifestConfiguration;
  * @property {string} defaultVideoCodec
  *   The default video codec if it is not specified in the HLS playlist.
  *   <i>Defaults to <code>'avc1.42E01E'</code>.</i>
+ * @property {boolean} ignoreManifestProgramDateTime
+ *   If <code>true</code>, the HLS parser will ignore the
+ *   <code>EXT-X-PROGRAM-DATE-TIME</code> tags in the manifest.
+ *   Meant for tags that are incorrect or malformed.
+ *   <i>Defaults to <code>false</code>.</i>
+ * @property {string} mediaPlaylistFullMimeType
+ *   A string containing a full mime type, including both the basic mime type
+ *   and also the codecs. Used when the HLS parser parses a media playlist
+ *   directly, required since all of the mime type and codecs information is
+ *   contained within the master playlist.
+ *   You can use the <code>shaka.util.MimeUtils.getFullType()</code> utility to
+ *   format this value.
+ *   <i>Defaults to
+ *   <code>'video/mp2t; codecs="avc1.42E01E, mp4a.40.2"'</code>.</i>
  * @exportDoc
  */
 shaka.extern.HlsManifestConfiguration;
@@ -776,6 +781,7 @@ shaka.extern.HlsManifestConfiguration;
  *   disableText: boolean,
  *   disableThumbnails: boolean,
  *   defaultPresentationDelay: number,
+ *   segmentRelativeVttTiming: boolean,
  *   dash: shaka.extern.DashManifestConfiguration,
  *   hls: shaka.extern.HlsManifestConfiguration
  * }}
@@ -807,6 +813,10 @@ shaka.extern.HlsManifestConfiguration;
  *   configured or set as 0.
  *   For HLS, the default value is 3 segments duration if not configured or
  *   set as 0.
+ * @property {boolean} segmentRelativeVttTiming
+ *   Option to calculate VTT text timings relative to the segment start
+ *   instead of relative to the period start (which is the default).
+ *   Defaults to <code>false</code>.
  * @property {shaka.extern.DashManifestConfiguration} dash
  *   Advanced parameters used by the DASH manifest parser.
  * @property {shaka.extern.HlsManifestConfiguration} hls
@@ -828,8 +838,6 @@ shaka.extern.ManifestConfiguration;
  *   alwaysStreamText: boolean,
  *   startAtSegmentBoundary: boolean,
  *   gapDetectionThreshold: number,
- *   smallGapLimit: number,
- *   jumpLargeGaps: boolean,
  *   durationBackoff: number,
  *   forceTransmuxTS: boolean,
  *   safeSeekOffset: number,
@@ -884,18 +892,8 @@ shaka.extern.ManifestConfiguration;
  *   to <code>false</code>.
  * @property {number} gapDetectionThreshold
  *   TThe maximum distance (in seconds) before a gap when we'll automatically
- *   jump. This value  defaults to <code>0.1</code>, except in Edge Legacy, IE,
+ *   jump. This value  defaults to <code>0.1</code>, except in Edge Legacy,
  *   Tizen, Chromecast that value defaults value is <code>0.5</code>
- * @property {number} smallGapLimit
- *   The limit (in seconds) for a gap in the media to be considered "small".
- *   Small gaps are jumped automatically without events.  Large gaps result
- *   in a Player event and can be jumped.
- * @property {boolean} jumpLargeGaps
- *   If <code>true</code>, jump large gaps in addition to small gaps.  A
- *   <code>largegap</code> event will be raised first.  Then, if the app doesn't
- *   call <code>preventDefault()</code> on the event, the Player will jump the
- *   gap.  If <code>false</code>, then the event will be raised, but the gap
- *   will not be jumped.
  * @property {number} durationBackoff
  *   By default, we will not allow seeking to exactly the duration of a
  *   presentation.  This field is the number of seconds before duration we will

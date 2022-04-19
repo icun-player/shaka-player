@@ -11,7 +11,6 @@ goog.require('goog.asserts');
 goog.require('shakaDemo.BoolInput');
 goog.require('shakaDemo.DatalistInput');
 goog.require('shakaDemo.InputContainer');
-goog.require('shakaDemo.Main');
 goog.require('shakaDemo.MessageIds');
 goog.require('shakaDemo.NumberInput');
 goog.require('shakaDemo.SelectInput');
@@ -213,6 +212,8 @@ shakaDemo.Config = class {
             'manifest.hls.defaultAudioCodec')
         .addTextInput_(MessageIds.DEFAULT_VIDEO_CODEC,
             'manifest.hls.defaultVideoCodec')
+        .addBoolInput_(MessageIds.IGNORE_MANIFEST_PROGRAM_DATE_TIME,
+            'manifest.hls.ignoreManifestProgramDateTime')
         .addNumberInput_(MessageIds.AVAILABILITY_WINDOW_OVERRIDE,
             'manifest.availabilityWindowOverride',
             /* canBeDecimal= */ true,
@@ -235,7 +236,9 @@ shakaDemo.Config = class {
         .addBoolInput_(MessageIds.DISABLE_TEXT,
             'manifest.disableText')
         .addBoolInput_(MessageIds.DISABLE_THUMBNAILS,
-            'manifest.disableThumbnails');
+            'manifest.disableThumbnails')
+        .addBoolInput_(MessageIds.SEGMENT_RELATIVE_VTT_TIMING,
+            'manifest.segmentRelativeVttTiming');
 
     this.addRetrySection_('manifest', MessageIds.MANIFEST_RETRY_SECTION_HEADER);
   }
@@ -349,9 +352,6 @@ shakaDemo.Config = class {
         .addNumberInput_(MessageIds.GAP_DETECTION_THRESHOLD,
             'streaming.gapDetectionThreshold',
             /* canBeDecimal= */ true)
-        .addNumberInput_(MessageIds.MAX_SMALL_GAP_SIZE,
-            'streaming.smallGapLimit',
-            /* canBeDecimal= */ true)
         .addNumberInput_(MessageIds.BUFFERING_GOAL,
             'streaming.bufferingGoal',
             /* canBeDecimal= */ true)
@@ -404,10 +404,8 @@ shakaDemo.Config = class {
       this.latestInput_.input().checked = true;
     }
 
-    this.addBoolInput_(MessageIds.JUMP_LARGE_GAPS,
-        'streaming.jumpLargeGaps')
-        .addBoolInput_(MessageIds.FORCE_TRANSMUX_TS,
-            'streaming.forceTransmuxTS')
+    this.addBoolInput_(MessageIds.FORCE_TRANSMUX_TS,
+        'streaming.forceTransmuxTS')
         .addBoolInput_(MessageIds.START_AT_SEGMENT_BOUNDARY,
             'streaming.startAtSegmentBoundary')
         .addBoolInput_(MessageIds.IGNORE_TEXT_FAILURES,
